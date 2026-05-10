@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TugasBesarKPL.Tests/TugasBesarKPL.Tests.csproj" />
+  <Project Path="TugasBesarKPL_Solution/TugasBesarKPL_Solution.csproj" />
+</Solution>
