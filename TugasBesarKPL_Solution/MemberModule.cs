@@ -38,7 +38,7 @@ namespace TugasBesarKPL
         }
 
         // Teknik 2: API
-        public async Task<string> GenerateDummyMemberAsync()
+        public async Task<string> GenerateDummyMemberAsync(string url = "https://randomuser.me/api/")
         {
             // Performance Testing: Mengukur waktu respons API
             Stopwatch sw = Stopwatch.StartNew();
@@ -46,7 +46,7 @@ namespace TugasBesarKPL
             try
             {
                 // Menarik data dari API Publik
-                HttpResponseMessage response = await client.GetAsync("https://randomuser.me/api/");
+                HttpResponseMessage response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 string responseBody = await response.Content.ReadAsStringAsync();
 

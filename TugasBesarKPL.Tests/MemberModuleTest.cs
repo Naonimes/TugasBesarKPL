@@ -57,5 +57,22 @@ namespace TugasBesarKPL.Tests
             Assert.IsNotNull(result);
             Assert.AreNotEqual("Guest", result);
         }
+
+        [TestMethod]
+        public async Task GenerateDummyMemberAsync_ShouldReturnDefaultName_WhenApiFails()
+        {
+            // ARRANGE
+            // Kita sengaja masukkan URL yang salah/ngaco untuk mensimulasikan gagal koneksi
+            string fakeUrl = "https://url-salah-ini-pasti-gagal.com";
+            var memberModule = new MemberModule();
+
+            // ACT
+            // Memanggil fungsi dengan URL yang salah
+            string result = await memberModule.GenerateDummyMemberAsync(fakeUrl);
+
+            // ASSERT
+            // Pastikan hasilnya bukan error/crash, tapi kembali ke nama default "Guest"
+            Assert.AreEqual("Guest", result);
+        }
     }
 }
