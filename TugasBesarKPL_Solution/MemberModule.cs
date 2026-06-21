@@ -1,73 +1,61 @@
-﻿using System;
-using System.Diagnostics;
-using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace TugasBesarKPL
+namespace TugasBesarKPL_Solution
 {
+    // 1. Cetakan Data Member
+    public class MemberData
+    {
+        public string ID { get; set; }
+        public string Nama { get; set; }
+        public string NoTelp { get; set; }
+        public string Tier { get; set; }
+    }
+
     public class MemberModule
     {
-        // Teknik 1: Automata (State Transition)
-        public enum MemberTier { Bronze, Silver, Gold }
-        public MemberTier Tier { get; private set; } = MemberTier.Bronze;
-        public int TotalPoints { get; private set; } = 0;
+        // 2. Database Sementara (Dictionary)
+        private Dictionary<string, MemberData> dbMember = new Dictionary<string, MemberData>();
 
-        private static readonly HttpClient client = new HttpClient();
-
-        public void AddPoints(int points)
+        public MemberModule()
         {
-            // Defensive Programming (DbC) - Pre-condition
-            if (points < 0) throw new ArgumentException("Poin tidak bisa minus!");
-
-            TotalPoints += points;
-            UpdateTierAutomata();
+            // Data bawaan saat aplikasi dijalankan
+            dbMember.Add("M01", new MemberData { ID = "M01", Nama = "Khaidiri Murteza", NoTelp = "08123456789", Tier = "🥉 BRONZE" });
+            dbMember.Add("M02", new MemberData { ID = "M02", Nama = "Hilmy Rafi", NoTelp = "08987654321", Tier = "🥇 GOLD" });
         }
 
-        // Logika transisi Automata
-        private void UpdateTierAutomata()
+        // 3. Fungsi Validasi (Poin dihapus, mengembalikan Nama dan Tier)
+        public (string nama, string tier) ValidasiMember(string memberID)
         {
-            if (TotalPoints >= 5000 && Tier != MemberTier.Gold)
+            if (dbMember.ContainsKey(memberID))
             {
-                Tier = MemberTier.Gold;
+                var m = dbMember[memberID];
+                return (m.Nama, m.Tier);
             }
-            else if (TotalPoints >= 1000 && Tier == MemberTier.Bronze)
-            {
-                Tier = MemberTier.Silver;
-            }
+            return ("", "Tidak Terdaftar / Expired");
         }
 
-        // Teknik 2: API
-        public async Task<string> GenerateDummyMemberAsync()
+        // 4. Fungsi Registrasi & Auto-Generate ID
+        public string RegisterMember(string nama, string telp, string tier)
         {
-            // Performance Testing: Mengukur waktu respons API
-            Stopwatch sw = Stopwatch.StartNew();
+            int maxId = 0;
 
-            try
+            // Mencari ID terbesar di database
+            foreach (var key in dbMember.Keys)
             {
-                // Menarik data dari API Publik
-                HttpResponseMessage response = await client.GetAsync("https://randomuser.me/api/");
-                response.EnsureSuccessStatusCode();
-                string responseBody = await response.Content.ReadAsStringAsync();
-
-                sw.Stop();
-                Console.WriteLine($"[Performance] API GenerateDummyMember selesai: {sw.ElapsedMilliseconds} ms");
-
-                // Ekstraksi nama dari JSON response
-                using (JsonDocument doc = JsonDocument.Parse(responseBody))
+                // Memotong awalan "M" (misal: "M02" jadi "02") lalu jadikan angka
+                if (key.StartsWith("M") && int.TryParse(key.Substring(1), out int num))
                 {
-                    var nameElement = doc.RootElement.GetProperty("results")[0].GetProperty("name");
-                    string? first = nameElement.GetProperty("first").GetString();
-                    string? last = nameElement.GetProperty("last").GetString();
-                    return $"{first} {last}";
+                    if (num > maxId) maxId = num;
                 }
             }
-            catch (Exception ex)
-            {
-                sw.Stop();
-                Console.WriteLine($"[Error] API Call Gagal: {ex.Message}");
-                return "Guest";
-            }
+
+            // Generate ID baru (Misal max 2, maka jadi 3 -> "M03")
+            string newId = $"M{(maxId + 1):D2}";
+
+            // Simpan ke database
+            dbMember.Add(newId, new MemberData { ID = newId, Nama = nama, NoTelp = telp, Tier = tier });
+
+            return newId;
         }
     }
 }
