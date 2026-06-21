@@ -1,5 +1,7 @@
 <Solution>
   <Project Path="TugasBesarKPL.Tests/TugasBesarKPL.Tests.csproj" />
   <Project Path="TugasBesarKPL_Solution/TugasBesarKPL_Solution.csproj" />
-  <Project Path="TugasBesarKPL_UInterface/TugasBesarKPL_UInterface.csproj" Id="2a1c1a74-72cd-40bb-9423-98370454ab3b" />
+  <Project Path="TugasBesarKPL_UInterface/TugasBesarKPL_UInterface.csproj" Id="2a1c1a74-72cd-40bb-9423-98370454ab3b">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
 </Solution>
